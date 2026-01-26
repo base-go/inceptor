@@ -15,7 +15,7 @@ const newAppRetention = ref(30)
 const createdApp = ref<App | null>(null)
 
 const loadApps = async () => {
-  if (!api.apiKey.value) {
+  if (!api.isAuthenticated.value) {
     loading.value = false
     return
   }
@@ -127,13 +127,16 @@ const copyApiKey = () => {
         </template>
 
         <div class="space-y-4">
-          <UFormGroup label="App Name" required>
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1">App Name</label>
             <UInput v-model="newAppName" placeholder="My Flutter App" />
-          </UFormGroup>
+          </div>
 
-          <UFormGroup label="Retention Days" hint="How long to keep crash data">
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1">Retention Days</label>
+            <p class="text-xs text-gray-500 mb-1">How long to keep crash data</p>
             <UInput v-model="newAppRetention" type="number" min="1" max="365" />
-          </UFormGroup>
+          </div>
         </div>
 
         <template #footer>
@@ -163,18 +166,20 @@ const copyApiKey = () => {
         </UAlert>
 
         <div class="space-y-4">
-          <UFormGroup label="App Name">
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1">App Name</label>
             <UInput :model-value="createdApp?.name" readonly />
-          </UFormGroup>
+          </div>
 
-          <UFormGroup label="API Key">
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1">API Key</label>
             <div class="flex gap-2">
               <UInput :model-value="createdApp?.api_key" readonly class="flex-1 font-mono text-sm" />
               <UButton icon="i-heroicons-clipboard-document" variant="outline" @click="copyApiKey">
                 Copy
               </UButton>
             </div>
-          </UFormGroup>
+          </div>
         </div>
 
         <template #footer>

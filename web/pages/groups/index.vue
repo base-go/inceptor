@@ -42,7 +42,7 @@ const columns = [
 ]
 
 const loadGroups = async () => {
-  if (!api.apiKey.value) {
+  if (!api.isAuthenticated.value) {
     loading.value = false
     return
   }

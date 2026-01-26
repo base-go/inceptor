@@ -40,6 +40,10 @@ type Repository interface {
 	UpdateAlert(ctx context.Context, alert *core.Alert) error
 	DeleteAlert(ctx context.Context, id string) error
 
+	// Settings
+	GetSetting(ctx context.Context, key string) (string, error)
+	SetSetting(ctx context.Context, key, value string) error
+
 	// Lifecycle
 	Close() error
 	Migrate() error

@@ -94,6 +94,10 @@ func (r *SQLiteRepository) Migrate() error {
 		`CREATE INDEX IF NOT EXISTS idx_crash_groups_app_id ON crash_groups(app_id)`,
 		`CREATE INDEX IF NOT EXISTS idx_crash_groups_fingerprint ON crash_groups(app_id, fingerprint)`,
 		`CREATE INDEX IF NOT EXISTS idx_crash_groups_status ON crash_groups(status)`,
+		`CREATE TABLE IF NOT EXISTS settings (
+			key TEXT PRIMARY KEY,
+			value TEXT NOT NULL
+		)`,
 	}
 
 	for _, migration := range migrations {
@@ -628,4 +632,22 @@ func (r *SQLiteRepository) GetAppStats(ctx context.Context, appID string) (*core
 	}
 
 	return stats, nil
+}
+
+// Settings operations
+func (r *SQLiteRepository) GetSetting(ctx context.Context, key string) (string, error) {
+	var value string
+	err := r.db.QueryRowContext(ctx, `SELECT value FROM settings WHERE key = ?`, key).Scan(&value)
+	if err == sql.ErrNoRows {
+		return "", nil
+	}
+	return value, err
+}
+
+func (r *SQLiteRepository) SetSetting(ctx context.Context, key, value string) error {
+	_, err := r.db.ExecContext(ctx,
+		`INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = ?`,
+		key, value, value,
+	)
+	return err
 }

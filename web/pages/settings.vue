@@ -32,7 +32,7 @@ const alertTypes = [
 ]
 
 const loadData = async () => {
-  if (!api.apiKey.value) {
+  if (!api.isAuthenticated.value) {
     loading.value = false
     return
   }
@@ -94,30 +94,11 @@ const typeIcon = (type: string) => {
   return alertTypes.find((t) => t.value === type)?.icon || 'i-heroicons-bell'
 }
 
-const updateApiKey = (event: Event) => {
-  const target = event.target as HTMLInputElement
-  api.setApiKey(target.value)
-}
+
 </script>
 
 <template>
   <div class="space-y-6 max-w-4xl">
-    <!-- API Key Section -->
-    <UCard>
-      <template #header>
-        <h3 class="text-lg font-semibold">API Configuration</h3>
-      </template>
-
-      <UFormGroup label="Admin API Key" hint="Your admin key for dashboard access">
-        <UInput
-          :model-value="api.apiKey.value"
-          type="password"
-          placeholder="Enter your admin API key"
-          @change="updateApiKey"
-        />
-      </UFormGroup>
-    </UCard>
-
     <!-- Alerts Section -->
     <UCard>
       <template #header>
@@ -184,7 +165,8 @@ const updateApiKey = (event: Event) => {
         </template>
 
         <div class="space-y-4">
-          <UFormGroup label="App">
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1">App</label>
             <USelectMenu
               v-model="newAlert.app_id"
               :options="apps"
@@ -192,39 +174,44 @@ const updateApiKey = (event: Event) => {
               value-attribute="id"
               placeholder="Select an app"
             />
-          </UFormGroup>
+          </div>
 
-          <UFormGroup label="Alert Type">
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1">Alert Type</label>
             <USelectMenu
               v-model="newAlert.type"
               :options="alertTypes"
               option-attribute="label"
               value-attribute="value"
             />
-          </UFormGroup>
+          </div>
 
           <!-- Webhook Config -->
           <template v-if="newAlert.type === 'webhook'">
-            <UFormGroup label="Webhook URL" required>
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-1">Webhook URL</label>
               <UInput v-model="(newAlert.config as any).url" placeholder="https://example.com/webhook" />
-            </UFormGroup>
+            </div>
           </template>
 
           <!-- Email Config -->
           <template v-if="newAlert.type === 'email'">
-            <UFormGroup label="Email Address" required>
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-1">Email Address</label>
               <UInput v-model="(newAlert.config as any).to" type="email" placeholder="alerts@example.com" />
-            </UFormGroup>
+            </div>
           </template>
 
           <!-- Slack Config -->
           <template v-if="newAlert.type === 'slack'">
-            <UFormGroup label="Slack Webhook URL" required>
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-1">Slack Webhook URL</label>
               <UInput v-model="(newAlert.config as any).webhook_url" placeholder="https://hooks.slack.com/..." />
-            </UFormGroup>
+            </div>
           </template>
 
-          <UFormGroup label="Conditions">
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1">Conditions</label>
             <div class="space-y-2">
               <UCheckbox
                 v-model="(newAlert.config as any).conditions.on_new_group"
@@ -235,11 +222,11 @@ const updateApiKey = (event: Event) => {
                 label="Alert on every crash"
               />
             </div>
-          </UFormGroup>
+          </div>
 
-          <UFormGroup>
+          <div>
             <UCheckbox v-model="newAlert.enabled" label="Enable this alert" />
-          </UFormGroup>
+          </div>
         </div>
 
         <template #footer>

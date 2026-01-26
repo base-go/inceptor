@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/flakerimi/inceptor/internal/api/rest"
+	"github.com/flakerimi/inceptor/internal/auth"
 	"github.com/flakerimi/inceptor/internal/config"
 	"github.com/flakerimi/inceptor/internal/core"
 	"github.com/flakerimi/inceptor/internal/storage"
@@ -75,8 +76,16 @@ func main() {
 	retention.Start()
 	defer retention.Stop()
 
+	// Initialize auth manager
+	passwordHash, _ := repo.GetSetting(context.Background(), "password_hash")
+	authManager := auth.NewManager(passwordHash, func(hash string) {
+		if err := repo.SetSetting(context.Background(), "password_hash", hash); err != nil {
+			log.Error().Err(err).Msg("Failed to save password hash")
+		}
+	})
+
 	// Initialize REST server
-	restServer := rest.NewServer(repo, fileStore, alerter, cfg.Auth.AdminKey)
+	restServer := rest.NewServer(repo, fileStore, alerter, authManager, cfg.Auth.AdminKey)
 
 	// Start servers
 	errChan := make(chan error, 2)

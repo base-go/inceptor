@@ -1,28 +1,80 @@
 import type { Crash, CrashGroup, App, Alert, CrashStats, PaginatedResponse } from '~/types'
 
+interface AuthStatus {
+  needs_password_change: boolean
+}
+
+interface LoginResponse {
+  token: string
+  expires_at: string
+  needs_password_change: boolean
+}
+
 export const useApi = () => {
   const config = useRuntimeConfig()
-  const apiKey = useState<string>('apiKey', () => '')
+  const token = useState<string>('authToken', () => '')
+  const needsPasswordChange = useState<boolean>('needsPasswordChange', () => false)
 
   const baseUrl = config.public.apiBase
 
-  const headers = computed(() => ({
-    'Content-Type': 'application/json',
-    'X-API-Key': apiKey.value,
-  }))
+  const headers = computed(() => {
+    const h: Record<string, string> = {
+      'Content-Type': 'application/json',
+    }
+    if (token.value) {
+      h['Authorization'] = `Bearer ${token.value}`
+    }
+    return h
+  })
 
-  const setApiKey = (key: string) => {
-    apiKey.value = key
+  const isAuthenticated = computed(() => !!token.value)
+
+  // Auth methods
+  const checkAuthStatus = async (): Promise<AuthStatus> => {
+    return await $fetch<AuthStatus>(`${baseUrl}/auth/status`)
+  }
+
+  const login = async (password: string): Promise<LoginResponse> => {
+    const response = await $fetch<LoginResponse>(`${baseUrl}/auth/login`, {
+      method: 'POST',
+      body: { password },
+    })
+    token.value = response.token
+    needsPasswordChange.value = response.needs_password_change
     if (process.client) {
-      localStorage.setItem('inceptor_api_key', key)
+      localStorage.setItem('inceptor_token', response.token)
+    }
+    return response
+  }
+
+  const logout = async (): Promise<void> => {
+    try {
+      await $fetch(`${baseUrl}/auth/logout`, {
+        method: 'POST',
+        headers: headers.value,
+      })
+    } catch {}
+    token.value = ''
+    needsPasswordChange.value = false
+    if (process.client) {
+      localStorage.removeItem('inceptor_token')
     }
   }
 
-  const loadApiKey = () => {
+  const changePassword = async (oldPassword: string, newPassword: string): Promise<void> => {
+    await $fetch(`${baseUrl}/auth/change-password`, {
+      method: 'POST',
+      headers: headers.value,
+      body: { old_password: oldPassword, new_password: newPassword },
+    })
+    needsPasswordChange.value = false
+  }
+
+  const loadToken = () => {
     if (process.client) {
-      const savedKey = localStorage.getItem('inceptor_api_key')
-      if (savedKey) {
-        apiKey.value = savedKey
+      const savedToken = localStorage.getItem('inceptor_token')
+      if (savedToken) {
+        token.value = savedToken
       }
     }
   }
@@ -44,10 +96,9 @@ export const useApi = () => {
       })
     }
 
-    const response = await $fetch<PaginatedResponse<Crash>>(`${baseUrl}/crashes?${query}`, {
+    return await $fetch<PaginatedResponse<Crash>>(`${baseUrl}/crashes?${query}`, {
       headers: headers.value,
     })
-    return response
   }
 
   const getCrash = async (id: string): Promise<Crash> => {
@@ -150,9 +201,14 @@ export const useApi = () => {
   }
 
   return {
-    apiKey,
-    setApiKey,
-    loadApiKey,
+    token,
+    isAuthenticated,
+    needsPasswordChange,
+    loadToken,
+    checkAuthStatus,
+    login,
+    logout,
+    changePassword,
     getCrashes,
     getCrash,
     deleteCrash,

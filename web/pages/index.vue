@@ -15,8 +15,72 @@ const error = ref<string | null>(null)
 
 const apps = ref<{ id: string; name: string }[]>([])
 
+// Login state
+const password = ref('')
+const loginError = ref<string | null>(null)
+const loginLoading = ref(false)
+
+// Password change state
+const showPasswordChange = ref(false)
+const oldPassword = ref('')
+const newPassword = ref('')
+const confirmPassword = ref('')
+const passwordChangeError = ref<string | null>(null)
+const passwordChangeLoading = ref(false)
+
+const handleLogin = async () => {
+  if (!password.value) return
+
+  loginLoading.value = true
+  loginError.value = null
+
+  try {
+    await api.login(password.value)
+    password.value = ''
+
+    // Check if password change is needed
+    if (api.needsPasswordChange.value) {
+      showPasswordChange.value = true
+    } else {
+      loadData()
+    }
+  } catch (e: any) {
+    loginError.value = e.data?.error || 'Invalid password'
+  } finally {
+    loginLoading.value = false
+  }
+}
+
+const handlePasswordChange = async () => {
+  if (!oldPassword.value || !newPassword.value) return
+  if (newPassword.value !== confirmPassword.value) {
+    passwordChangeError.value = 'Passwords do not match'
+    return
+  }
+  if (newPassword.value.length < 4) {
+    passwordChangeError.value = 'Password must be at least 4 characters'
+    return
+  }
+
+  passwordChangeLoading.value = true
+  passwordChangeError.value = null
+
+  try {
+    await api.changePassword(oldPassword.value, newPassword.value)
+    showPasswordChange.value = false
+    oldPassword.value = ''
+    newPassword.value = ''
+    confirmPassword.value = ''
+    loadData()
+  } catch (e: any) {
+    passwordChangeError.value = e.data?.error || 'Failed to change password'
+  } finally {
+    passwordChangeLoading.value = false
+  }
+}
+
 const loadData = async () => {
-  if (!api.apiKey.value) {
+  if (!api.isAuthenticated.value) {
     loading.value = false
     return
   }
@@ -56,6 +120,10 @@ const loadData = async () => {
 watch(selectedAppId, () => loadData())
 
 onMounted(() => {
+  // Check if password change needed after token load
+  if (api.needsPasswordChange.value) {
+    showPasswordChange.value = true
+  }
   loadData()
 })
 
@@ -88,21 +156,92 @@ const statusColor = (status: string) => {
 
 <template>
   <div class="space-y-6">
-    <!-- API Key Input if not set -->
-    <UCard v-if="!api.apiKey.value" class="max-w-md">
+    <!-- Password Change Modal -->
+    <UModal v-model="showPasswordChange" :prevent-close="api.needsPasswordChange.value">
+      <UCard>
+        <template #header>
+          <h3 class="text-lg font-semibold">Change Password</h3>
+          <p v-if="api.needsPasswordChange.value" class="text-sm text-gray-400 mt-1">
+            Please change your default password to continue.
+          </p>
+        </template>
+
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1">Current Password</label>
+            <UInput
+              v-model="oldPassword"
+              type="password"
+              placeholder="Enter current password"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1">New Password</label>
+            <UInput
+              v-model="newPassword"
+              type="password"
+              placeholder="Enter new password (min 4 chars)"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1">Confirm Password</label>
+            <UInput
+              v-model="confirmPassword"
+              type="password"
+              placeholder="Confirm new password"
+              @keyup.enter="handlePasswordChange"
+            />
+          </div>
+          <UAlert v-if="passwordChangeError" color="red" :title="passwordChangeError" />
+        </div>
+
+        <template #footer>
+          <div class="flex justify-end gap-2">
+            <UButton
+              v-if="!api.needsPasswordChange.value"
+              color="gray"
+              @click="showPasswordChange = false"
+            >
+              Cancel
+            </UButton>
+            <UButton
+              :loading="passwordChangeLoading"
+              @click="handlePasswordChange"
+            >
+              Change Password
+            </UButton>
+          </div>
+        </template>
+      </UCard>
+    </UModal>
+
+    <!-- Login Form if not authenticated -->
+    <UCard v-if="!api.isAuthenticated.value" class="max-w-md">
       <template #header>
-        <h3 class="text-lg font-semibold">Enter API Key</h3>
+        <h3 class="text-lg font-semibold">Login</h3>
       </template>
-      <UFormGroup label="Admin API Key">
-        <UInput
-          type="password"
-          placeholder="Enter your admin API key"
-          @keyup.enter="(e: KeyboardEvent) => { api.setApiKey((e.target as HTMLInputElement).value); loadData() }"
-        />
-      </UFormGroup>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-300 mb-1">Password</label>
+          <UInput
+            v-model="password"
+            type="password"
+            placeholder="Enter password"
+            @keyup.enter="handleLogin"
+          />
+        </div>
+        <UAlert v-if="loginError" color="red" :title="loginError" />
+        <UButton
+          :loading="loginLoading"
+          block
+          @click="handleLogin"
+        >
+          Login
+        </UButton>
+      </div>
       <template #footer>
         <p class="text-sm text-gray-500">
-          You can find your admin API key in the server configuration.
+          Default password: inceptor
         </p>
       </template>
     </UCard>

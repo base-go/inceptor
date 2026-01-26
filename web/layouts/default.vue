@@ -15,9 +15,13 @@ const isActive = (path: string) => {
   return route.path.startsWith(path)
 }
 
-// Load API key on mount
+const handleLogout = async () => {
+  await api.logout()
+}
+
+// Load saved token on mount
 onMounted(() => {
-  api.loadApiKey()
+  api.loadToken()
 })
 </script>
 
@@ -50,19 +54,24 @@ onMounted(() => {
         </NuxtLink>
       </nav>
 
-      <!-- API Key Status -->
+      <!-- Auth Status -->
       <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-700">
-        <div class="flex items-center text-sm">
-          <UIcon
-            :name="api.apiKey.value ? 'i-heroicons-check-circle' : 'i-heroicons-exclamation-circle'"
-            :class="[
-              'w-5 h-5 mr-2',
-              api.apiKey.value ? 'text-green-500' : 'text-yellow-500',
-            ]"
+        <div v-if="api.isAuthenticated.value" class="flex items-center justify-between">
+          <div class="flex items-center text-sm">
+            <UIcon name="i-heroicons-check-circle" class="w-5 h-5 mr-2 text-green-500" />
+            <span class="text-gray-400">Connected</span>
+          </div>
+          <UButton
+            size="xs"
+            color="gray"
+            variant="ghost"
+            icon="i-heroicons-arrow-right-on-rectangle"
+            @click="handleLogout"
           />
-          <span class="text-gray-400">
-            {{ api.apiKey.value ? 'API Connected' : 'No API Key' }}
-          </span>
+        </div>
+        <div v-else class="flex items-center text-sm">
+          <UIcon name="i-heroicons-exclamation-circle" class="w-5 h-5 mr-2 text-yellow-500" />
+          <span class="text-gray-400">Not logged in</span>
         </div>
       </div>
     </div>

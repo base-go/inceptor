@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"github.com/flakerimi/inceptor/internal/auth"
 	"github.com/flakerimi/inceptor/internal/core"
 	"github.com/flakerimi/inceptor/internal/storage"
 	"github.com/gin-gonic/gin"
@@ -8,20 +9,25 @@ import (
 
 // Server holds the REST API server
 type Server struct {
-	router  *gin.Engine
-	handler *Handler
+	router      *gin.Engine
+	handler     *Handler
+	authHandler *AuthHandler
+	authManager *auth.Manager
 }
 
 // NewServer creates a new REST API server
-func NewServer(repo storage.Repository, fileStore storage.FileStore, alerter *core.AlertManager, adminKey string) *Server {
+func NewServer(repo storage.Repository, fileStore storage.FileStore, alerter *core.AlertManager, authManager *auth.Manager, adminKey string) *Server {
 	gin.SetMode(gin.ReleaseMode)
 
 	router := gin.New()
 	handler := NewHandler(repo, fileStore, alerter)
+	authHandler := NewAuthHandler(authManager)
 
 	s := &Server{
-		router:  router,
-		handler: handler,
+		router:      router,
+		handler:     handler,
+		authHandler: authHandler,
+		authManager: authManager,
 	}
 
 	s.setupRoutes(repo, adminKey)
@@ -35,7 +41,7 @@ func (s *Server) setupRoutes(repo storage.Repository, adminKey string) {
 	s.router.Use(Recovery())
 	s.router.Use(CORS())
 
-	// Serve embedded dashboard at /app
+	// Serve embedded dashboard
 	ServeStatic(s.router)
 
 	// Health check (no auth)
@@ -44,6 +50,14 @@ func (s *Server) setupRoutes(repo storage.Repository, adminKey string) {
 
 	// API v1
 	v1 := s.router.Group("/api/v1")
+
+	// Auth routes (no auth required)
+	v1.GET("/auth/status", s.authHandler.Status)
+	v1.POST("/auth/login", s.authHandler.Login)
+	v1.POST("/auth/logout", s.authHandler.Logout)
+
+	// Change password (requires valid session)
+	v1.POST("/auth/change-password", SessionAuth(s.authManager), s.authHandler.ChangePassword)
 
 	// Public crash submission endpoint (requires app API key)
 	v1.POST("/crashes", APIKeyAuth(repo, adminKey), s.handler.SubmitCrash)

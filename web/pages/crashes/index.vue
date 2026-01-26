@@ -43,7 +43,7 @@ const columns = [
 ]
 
 const loadCrashes = async () => {
-  if (!api.apiKey.value) {
+  if (!api.isAuthenticated.value) {
     loading.value = false
     return
   }
