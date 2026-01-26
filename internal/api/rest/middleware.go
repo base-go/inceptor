@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/flakerimi/inceptor/internal/auth"
 	"github.com/flakerimi/inceptor/internal/core"
 	"github.com/flakerimi/inceptor/internal/storage"
 	"github.com/gin-gonic/gin"
@@ -18,7 +19,23 @@ const (
 
 // APIKeyAuth middleware validates API key and sets app context
 func APIKeyAuth(repo storage.Repository, adminKey string) gin.HandlerFunc {
+	return APIKeyOrSessionAuth(repo, adminKey, nil)
+}
+
+// APIKeyOrSessionAuth middleware validates API key OR session token
+func APIKeyOrSessionAuth(repo storage.Repository, adminKey string, authManager *auth.Manager) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		// First try session token (Bearer auth)
+		if authManager != nil {
+			bearerToken := ExtractBearerToken(c)
+			if bearerToken != "" && authManager.ValidateSession(bearerToken) {
+				c.Set(ContextKeyAdmin, true) // Session users have admin access
+				c.Next()
+				return
+			}
+		}
+
+		// Then try API key
 		apiKey := c.GetHeader("X-API-Key")
 		if apiKey == "" {
 			// Try query parameter as fallback

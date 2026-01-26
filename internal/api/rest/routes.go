@@ -62,9 +62,9 @@ func (s *Server) setupRoutes(repo storage.Repository, adminKey string) {
 	// Public crash submission endpoint (requires app API key)
 	v1.POST("/crashes", APIKeyAuth(repo, adminKey), s.handler.SubmitCrash)
 
-	// Authenticated routes
+	// Authenticated routes (accepts session token OR API key)
 	authenticated := v1.Group("")
-	authenticated.Use(APIKeyAuth(repo, adminKey))
+	authenticated.Use(APIKeyOrSessionAuth(repo, adminKey, s.authManager))
 	{
 		// Crashes
 		authenticated.GET("/crashes", s.handler.ListCrashes)
@@ -83,9 +83,9 @@ func (s *Server) setupRoutes(repo storage.Repository, adminKey string) {
 		authenticated.GET("/alerts", s.handler.ListAlerts)
 	}
 
-	// Admin-only routes
+	// Admin-only routes (accepts session token OR admin API key)
 	admin := v1.Group("")
-	admin.Use(APIKeyAuth(repo, adminKey), AdminOnly())
+	admin.Use(APIKeyOrSessionAuth(repo, adminKey, s.authManager), AdminOnly())
 	{
 		// App management
 		admin.POST("/apps", s.handler.CreateApp)
