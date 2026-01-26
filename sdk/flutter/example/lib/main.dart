@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:inceptor_flutter/inceptor.dart';
+import 'package:inceptor_flutter/inceptor_flutter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -314,27 +314,6 @@ class DetailsPage extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-/// Navigator observer to automatically track navigation
-class InceptorNavigatorObserver extends NavigatorObserver {
-  @override
-  void didPush(Route route, Route? previousRoute) {
-    super.didPush(route, previousRoute);
-    Inceptor.addNavigationBreadcrumb(
-      from: previousRoute?.settings.name ?? 'unknown',
-      to: route.settings.name ?? 'unknown',
-    );
-  }
-
-  @override
-  void didPop(Route route, Route? previousRoute) {
-    super.didPop(route, previousRoute);
-    Inceptor.addNavigationBreadcrumb(
-      from: route.settings.name ?? 'unknown',
-      to: previousRoute?.settings.name ?? 'unknown',
     );
   }
 }

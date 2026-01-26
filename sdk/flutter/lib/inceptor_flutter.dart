@@ -6,7 +6,7 @@
 /// ## Quick Start
 ///
 /// ```dart
-/// import 'package:inceptor_flutter/inceptor.dart';
+/// import 'package:inceptor_flutter/inceptor_flutter.dart';
 ///
 /// void main() async {
 ///   WidgetsFlutterBinding.ensureInitialized();
@@ -28,6 +28,7 @@
 library inceptor_flutter;
 
 export 'src/inceptor.dart';
+export 'src/navigator_observer.dart';
 export 'src/models/crash_report.dart';
 export 'src/models/breadcrumb.dart';
 export 'src/models/stack_frame.dart';

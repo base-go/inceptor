@@ -63,13 +63,53 @@ class InceptorStackFrame {
       methodName = methodPart;
     }
 
-    // Parse location
-    final locParts = locationPart.split(':');
-    final fileName = locParts.isNotEmpty ? locParts[0] : 'unknown';
-    final lineNumber =
-        locParts.length > 1 ? int.tryParse(locParts[1]) ?? 0 : 0;
-    final columnNumber =
-        locParts.length > 2 ? int.tryParse(locParts[2]) : null;
+    // Parse location - handle URIs like package:path/file.dart:line:col
+    // Split from the end to find line and column numbers
+    String fileName = 'unknown';
+    int lineNumber = 0;
+    int? columnNumber;
+
+    // Find the last two colons which separate line:col
+    final lastColon = locationPart.lastIndexOf(':');
+    if (lastColon > 0) {
+      final beforeLastColon = locationPart.substring(0, lastColon);
+      final secondLastColon = beforeLastColon.lastIndexOf(':');
+
+      if (secondLastColon > 0) {
+        // We have file:line:col format
+        final possibleCol = int.tryParse(locationPart.substring(lastColon + 1));
+        final possibleLine =
+            int.tryParse(beforeLastColon.substring(secondLastColon + 1));
+
+        if (possibleLine != null) {
+          fileName = beforeLastColon.substring(0, secondLastColon);
+          lineNumber = possibleLine;
+          columnNumber = possibleCol;
+        } else {
+          // Might be file:line format (no column)
+          final possibleLineOnly =
+              int.tryParse(locationPart.substring(lastColon + 1));
+          if (possibleLineOnly != null) {
+            fileName = beforeLastColon;
+            lineNumber = possibleLineOnly;
+          } else {
+            fileName = locationPart;
+          }
+        }
+      } else {
+        // Might be file:line format
+        final possibleLine =
+            int.tryParse(locationPart.substring(lastColon + 1));
+        if (possibleLine != null) {
+          fileName = beforeLastColon;
+          lineNumber = possibleLine;
+        } else {
+          fileName = locationPart;
+        }
+      }
+    } else {
+      fileName = locationPart;
+    }
 
     return InceptorStackFrame(
       fileName: fileName,
@@ -100,6 +140,18 @@ class InceptorStackFrame {
       if (className != null) 'class_name': className,
       'native': native,
     };
+  }
+
+  /// Create from JSON
+  factory InceptorStackFrame.fromJson(Map<String, dynamic> json) {
+    return InceptorStackFrame(
+      fileName: json['file_name'] as String,
+      lineNumber: json['line_number'] as int,
+      columnNumber: json['column_number'] as int?,
+      methodName: json['method_name'] as String,
+      className: json['class_name'] as String?,
+      native: json['native'] as bool? ?? false,
+    );
   }
 
   @override

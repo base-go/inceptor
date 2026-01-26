@@ -96,6 +96,30 @@ class InceptorCrashReport {
     );
   }
 
+  /// Create from JSON (for offline queue restoration)
+  factory InceptorCrashReport.fromJson(Map<String, dynamic> json) {
+    return InceptorCrashReport(
+      appVersion: json['app_version'] as String,
+      platform: json['platform'] as String,
+      osVersion: json['os_version'] as String?,
+      deviceModel: json['device_model'] as String?,
+      errorType: json['error_type'] as String,
+      errorMessage: json['error_message'] as String,
+      stackTrace: (json['stack_trace'] as List<dynamic>)
+          .map((e) => InceptorStackFrame.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      userId: json['user_id'] as String?,
+      environment: json['environment'] as String,
+      metadata: json['metadata'] as Map<String, dynamic>?,
+      breadcrumbs: json['breadcrumbs'] != null
+          ? (json['breadcrumbs'] as List<dynamic>)
+              .map(
+                  (e) => InceptorBreadcrumb.fromJson(e as Map<String, dynamic>))
+              .toList()
+          : null,
+    );
+  }
+
   @override
   String toString() {
     return 'InceptorCrashReport(errorType: $errorType, errorMessage: $errorMessage)';

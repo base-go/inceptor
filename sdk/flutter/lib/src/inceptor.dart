@@ -3,6 +3,7 @@ import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
@@ -393,10 +394,15 @@ class Inceptor {
     try {
       final prefs = await SharedPreferences.getInstance();
       final data = prefs.getStringList('inceptor_offline_queue') ?? [];
-      // Note: We can't fully reconstruct InceptorCrashReport from JSON
-      // because the model is designed for submission, not storage.
-      // In a production SDK, you'd want a more complete serialization.
-      _log('Loaded ${data.length} crashes from offline queue');
+      for (final item in data) {
+        try {
+          final json = jsonDecode(item) as Map<String, dynamic>;
+          _offlineQueue.add(InceptorCrashReport.fromJson(json));
+        } catch (e) {
+          _log('Failed to parse queued crash: $e');
+        }
+      }
+      _log('Loaded ${_offlineQueue.length} crashes from offline queue');
     } catch (e) {
       _log('Failed to load offline queue: $e');
     }
@@ -404,6 +410,12 @@ class Inceptor {
 
   Future<void> _flushOfflineQueue() async {
     if (_offlineQueue.isEmpty) return;
+
+    // Check connectivity before attempting to flush
+    if (!await _hasConnectivity()) {
+      _log('No connectivity, skipping offline queue flush');
+      return;
+    }
 
     _log('Flushing ${_offlineQueue.length} offline crashes');
     final queue = List<InceptorCrashReport>.from(_offlineQueue);
@@ -414,6 +426,21 @@ class Inceptor {
     }
 
     await _saveOfflineQueue();
+  }
+
+  Future<bool> _hasConnectivity() async {
+    try {
+      final result = await Connectivity().checkConnectivity();
+      // connectivity_plus 5.x returns ConnectivityResult, 6.x+ returns List
+      if (result is List) {
+        return (result as List).isNotEmpty &&
+            !(result as List).contains(ConnectivityResult.none);
+      }
+      return result != ConnectivityResult.none;
+    } catch (e) {
+      _log('Failed to check connectivity: $e');
+      return true; // Assume connected if check fails
+    }
   }
 
   static void _log(String message) {

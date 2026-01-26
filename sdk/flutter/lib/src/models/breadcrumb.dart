@@ -128,6 +128,18 @@ class InceptorBreadcrumb {
     };
   }
 
+  /// Create from JSON
+  factory InceptorBreadcrumb.fromJson(Map<String, dynamic> json) {
+    return InceptorBreadcrumb(
+      timestamp: DateTime.parse(json['timestamp'] as String),
+      type: json['type'] as String,
+      category: json['category'] as String,
+      message: json['message'] as String,
+      data: json['data'] as Map<String, dynamic>?,
+      level: json['level'] as String? ?? 'info',
+    );
+  }
+
   @override
   String toString() {
     return '[$level] $type/$category: $message';
