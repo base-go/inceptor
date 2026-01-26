@@ -1,0 +1,44 @@
+# Inceptor Configuration Example
+# Copy this file to config.yaml and adjust values as needed
+
+server:
+  # REST API port
+  rest_port: 8080
+  # gRPC port
+  grpc_port: 9090
+  # Dashboard port (if serving separately)
+  dashboard_port: 3000
+  # Host to bind to (0.0.0.0 for all interfaces)
+  host: "0.0.0.0"
+
+storage:
+  # Path to SQLite database file
+  sqlite_path: "./data/inceptor.db"
+  # Path to store crash log files
+  logs_path: "./data/crashes"
+
+retention:
+  # Default retention period in days
+  default_days: 30
+  # How often to run cleanup (Go duration format)
+  cleanup_interval: "24h"
+
+alerts:
+  # SMTP configuration for email alerts
+  smtp:
+    host: "smtp.example.com"
+    port: 587
+    username: ""
+    password: ""
+    from: "inceptor@example.com"
+
+  # Slack webhook for notifications
+  slack:
+    webhook_url: ""
+
+auth:
+  # Enable authentication (recommended)
+  enabled: true
+  # Admin API key for managing apps and alerts
+  # Generate a secure key: openssl rand -hex 32
+  admin_key: "your-secure-admin-key-here"

@@ -1,0 +1,62 @@
+# Binaries
+bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary
+*.test
+
+# Output of the go coverage tool
+*.out
+coverage.html
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Data files (generated at runtime)
+data/
+*.db
+*.sqlite
+
+# Config with secrets (use config.example.yaml as template)
+configs/config.yaml
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+tmp/
+
+# Web dashboard
+web/node_modules/
+web/.nuxt/
+web/.output/
+web/dist/
+
+# Flutter SDK
+sdk/flutter/.dart_tool/
+sdk/flutter/.packages
+sdk/flutter/pubspec.lock
+sdk/flutter/build/
+
+# Environment files
+.env
+.env.*
+!.env.example

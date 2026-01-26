@@ -1,0 +1,42 @@
+# BasePod Configuration for Inceptor
+# Crash logging service for Flutter and mobile apps
+
+name: inceptor
+port: 8080
+
+build:
+  dockerfile: Dockerfile
+  context: .
+
+# Environment variables
+env:
+  # Server configuration
+  INCEPTOR_SERVER_HOST: "0.0.0.0"
+  INCEPTOR_SERVER_REST_PORT: "8080"
+  INCEPTOR_SERVER_GRPC_PORT: "9090"
+
+  # Storage paths (persisted in volume)
+  INCEPTOR_STORAGE_SQLITE_PATH: "/app/data/inceptor.db"
+  INCEPTOR_STORAGE_LOGS_PATH: "/app/data/crashes"
+
+  # Retention settings
+  INCEPTOR_RETENTION_DEFAULT_DAYS: "30"
+  INCEPTOR_RETENTION_CLEANUP_INTERVAL: "24h"
+
+  # Authentication - CHANGE THIS IN PRODUCTION!
+  INCEPTOR_AUTH_ENABLED: "true"
+  INCEPTOR_AUTH_ADMIN_KEY: "${ADMIN_KEY:-changeme-generate-secure-key}"
+
+# Persist data across deployments
+volumes:
+  - /app/data
+
+# Health check endpoint
+health:
+  path: /health
+  interval: 30s
+
+# Resource limits (optional)
+resources:
+  memory: 512M
+  cpu: 1

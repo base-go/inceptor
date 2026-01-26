@@ -1,0 +1,172 @@
+syntax = "proto3";
+
+package inceptor.v1;
+
+option go_package = "github.com/flakerimi/inceptor/api/proto;proto";
+
+import "google/protobuf/timestamp.proto";
+
+// CrashService handles crash report operations
+service CrashService {
+  // SubmitCrash submits a single crash report
+  rpc SubmitCrash(CrashReport) returns (CrashResponse);
+
+  // SubmitCrashBatch submits multiple crash reports
+  rpc SubmitCrashBatch(CrashBatchRequest) returns (CrashBatchResponse);
+
+  // SubmitCrashStream submits crash reports via streaming
+  rpc SubmitCrashStream(stream CrashReport) returns (CrashBatchResponse);
+
+  // GetCrash retrieves a single crash by ID
+  rpc GetCrash(GetCrashRequest) returns (CrashReport);
+
+  // ListCrashes lists crashes with filters
+  rpc ListCrashes(ListCrashesRequest) returns (ListCrashesResponse);
+
+  // ListCrashesStream lists crashes via streaming
+  rpc ListCrashesStream(ListCrashesRequest) returns (stream CrashReport);
+}
+
+// CrashReport represents a crash report
+message CrashReport {
+  string id = 1;
+  string app_id = 2;
+  string app_version = 3;
+  string platform = 4;
+  string os_version = 5;
+  string device_model = 6;
+  string error_type = 7;
+  string error_message = 8;
+  repeated StackFrame stack_trace = 9;
+  string fingerprint = 10;
+  string group_id = 11;
+  string user_id = 12;
+  string environment = 13;
+  google.protobuf.Timestamp created_at = 14;
+  map<string, string> metadata = 15;
+  repeated Breadcrumb breadcrumbs = 16;
+}
+
+// StackFrame represents a single frame in a stack trace
+message StackFrame {
+  string file_name = 1;
+  int32 line_number = 2;
+  int32 column_number = 3;
+  string method_name = 4;
+  string class_name = 5;
+  bool native = 6;
+}
+
+// Breadcrumb represents a user action or event leading up to a crash
+message Breadcrumb {
+  google.protobuf.Timestamp timestamp = 1;
+  string type = 2;
+  string category = 3;
+  string message = 4;
+  map<string, string> data = 5;
+  string level = 6;
+}
+
+// CrashResponse is the response for a single crash submission
+message CrashResponse {
+  string id = 1;
+  string group_id = 2;
+  string fingerprint = 3;
+  bool is_new_group = 4;
+}
+
+// CrashBatchRequest is a batch of crash reports
+message CrashBatchRequest {
+  repeated CrashReport crashes = 1;
+}
+
+// CrashBatchResponse is the response for a batch submission
+message CrashBatchResponse {
+  int32 accepted = 1;
+  int32 rejected = 2;
+  repeated CrashResponse results = 3;
+}
+
+// GetCrashRequest is a request to get a single crash
+message GetCrashRequest {
+  string id = 1;
+}
+
+// ListCrashesRequest is a request to list crashes
+message ListCrashesRequest {
+  string app_id = 1;
+  string group_id = 2;
+  string platform = 3;
+  string environment = 4;
+  string error_type = 5;
+  string user_id = 6;
+  google.protobuf.Timestamp from_date = 7;
+  google.protobuf.Timestamp to_date = 8;
+  string search = 9;
+  int32 limit = 10;
+  int32 offset = 11;
+}
+
+// ListCrashesResponse is the response for listing crashes
+message ListCrashesResponse {
+  repeated CrashReport crashes = 1;
+  int32 total = 2;
+}
+
+// GroupService handles crash group operations
+service GroupService {
+  // GetGroup retrieves a crash group by ID
+  rpc GetGroup(GetGroupRequest) returns (CrashGroup);
+
+  // ListGroups lists crash groups
+  rpc ListGroups(ListGroupsRequest) returns (ListGroupsResponse);
+
+  // UpdateGroupStatus updates a group's status
+  rpc UpdateGroupStatus(UpdateGroupStatusRequest) returns (CrashGroup);
+}
+
+// CrashGroup represents a group of similar crashes
+message CrashGroup {
+  string id = 1;
+  string app_id = 2;
+  string fingerprint = 3;
+  string error_type = 4;
+  string error_message = 5;
+  google.protobuf.Timestamp first_seen = 6;
+  google.protobuf.Timestamp last_seen = 7;
+  int32 occurrence_count = 8;
+  string status = 9;
+  string assigned_to = 10;
+  string notes = 11;
+}
+
+// GetGroupRequest is a request to get a single group
+message GetGroupRequest {
+  string id = 1;
+}
+
+// ListGroupsRequest is a request to list groups
+message ListGroupsRequest {
+  string app_id = 1;
+  string status = 2;
+  string error_type = 3;
+  string search = 4;
+  string sort_by = 5;
+  string sort_order = 6;
+  int32 limit = 7;
+  int32 offset = 8;
+}
+
+// ListGroupsResponse is the response for listing groups
+message ListGroupsResponse {
+  repeated CrashGroup groups = 1;
+  int32 total = 2;
+}
+
+// UpdateGroupStatusRequest is a request to update a group's status
+message UpdateGroupStatusRequest {
+  string id = 1;
+  string status = 2;
+  string assigned_to = 3;
+  string notes = 4;
+}

@@ -1,0 +1,49 @@
+# Git
+.git
+.gitignore
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# Build artifacts
+bin/
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Test files
+*_test.go
+coverage.out
+coverage.html
+
+# Documentation
+*.md
+!README.md
+
+# Local data
+data/
+*.db
+*.sqlite
+
+# Web dashboard source (built separately or embedded)
+web/node_modules/
+web/.nuxt/
+web/.output/
+
+# Flutter SDK
+sdk/
+
+# Config files with secrets
+configs/config.yaml
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.log
