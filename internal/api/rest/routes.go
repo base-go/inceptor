@@ -35,6 +35,9 @@ func (s *Server) setupRoutes(repo storage.Repository, adminKey string) {
 	s.router.Use(Recovery())
 	s.router.Use(CORS())
 
+	// Root - API info
+	s.router.GET("/", s.handler.Root)
+
 	// Health check (no auth)
 	s.router.GET("/health", s.handler.Health)
 	s.router.GET("/ready", s.handler.Health)

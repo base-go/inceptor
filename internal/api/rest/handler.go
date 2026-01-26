@@ -31,6 +31,21 @@ func NewHandler(repo storage.Repository, fileStore storage.FileStore, alerter *c
 	}
 }
 
+// Root returns API info
+func (h *Handler) Root(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"name":    "Inceptor",
+		"version": "1.0.0",
+		"description": "Self-hosted crash logging service for Flutter and mobile apps",
+		"docs":    "https://github.com/base-go/inceptor",
+		"endpoints": gin.H{
+			"health":  "GET /health",
+			"crashes": "POST /api/v1/crashes",
+			"apps":    "GET /api/v1/apps (admin)",
+		},
+	})
+}
+
 // Health check
 func (h *Handler) Health(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "ok", "timestamp": time.Now().UTC()})
