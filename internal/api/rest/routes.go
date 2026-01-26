@@ -52,12 +52,14 @@ func (s *Server) setupRoutes(repo storage.Repository, adminKey string) {
 	v1 := s.router.Group("/api/v1")
 
 	// Auth routes (no auth required)
-	v1.GET("/auth/status", s.authHandler.Status)
-	v1.POST("/auth/login", s.authHandler.Login)
-	v1.POST("/auth/logout", s.authHandler.Logout)
-
-	// Change password (requires valid session)
-	v1.POST("/auth/change-password", SessionAuth(s.authManager), s.authHandler.ChangePassword)
+	authGroup := v1.Group("/auth")
+	{
+		authGroup.GET("/status", s.authHandler.Status)
+		authGroup.POST("/login", s.authHandler.Login)
+		authGroup.POST("/logout", s.authHandler.Logout)
+		// Change password requires valid session
+		authGroup.POST("/change-password", SessionAuth(s.authManager), s.authHandler.ChangePassword)
+	}
 
 	// Public crash submission endpoint (requires app API key)
 	v1.POST("/crashes", APIKeyAuth(repo, adminKey), s.handler.SubmitCrash)
