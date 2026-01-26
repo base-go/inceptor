@@ -29,10 +29,11 @@ data/
 *.db
 *.sqlite
 
-# Web dashboard source (built separately or embedded)
+# Web dashboard build artifacts (source is needed for Docker build)
 web/node_modules/
 web/.nuxt/
 web/.output/
+web/dist/
 
 # Flutter SDK
 sdk/

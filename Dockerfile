@@ -1,4 +1,21 @@
-# Build stage
+# Stage 1: Build Nuxt static files
+FROM node:20-alpine AS web-builder
+
+WORKDIR /web
+
+# Copy package files
+COPY web/package*.json ./
+
+# Install dependencies
+RUN npm ci
+
+# Copy web source
+COPY web/ ./
+
+# Build static files
+RUN npm run generate
+
+# Stage 2: Build Go binary
 FROM golang:1.22-alpine AS builder
 
 WORKDIR /app
@@ -15,10 +32,13 @@ RUN go mod download
 # Copy source code
 COPY . .
 
+# Copy built static files from web-builder
+COPY --from=web-builder /web/.output/public ./internal/api/rest/static/
+
 # Build the binary
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o inceptor ./cmd/inceptor
 
-# Production stage
+# Stage 3: Production image
 FROM alpine:3.19
 
 WORKDIR /app
