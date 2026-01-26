@@ -1,0 +1,20 @@
+# BasePod Configuration for Inceptor Dashboard
+name: inceptor-ui
+port: 3000
+
+build:
+  dockerfile: Dockerfile
+  context: .
+
+env:
+  NUXT_PUBLIC_API_BASE: "https://inceptor.common.al/api/v1"
+  NODE_ENV: "production"
+  HOST: "0.0.0.0"
+
+health:
+  path: /
+  interval: 30s
+
+resources:
+  memory: 512M
+  cpu: 1
