@@ -35,8 +35,8 @@ func (s *Server) setupRoutes(repo storage.Repository, adminKey string) {
 	s.router.Use(Recovery())
 	s.router.Use(CORS())
 
-	// Root - API info
-	s.router.GET("/", s.handler.Root)
+	// Serve embedded dashboard at /app
+	ServeStatic(s.router)
 
 	// Health check (no auth)
 	s.router.GET("/health", s.handler.Health)
