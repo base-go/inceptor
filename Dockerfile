@@ -10,7 +10,7 @@ COPY web/package*.json ./
 RUN npm ci
 
 # Cache bust - change this value to force rebuild
-ARG CACHE_BUST=3
+ARG CACHE_BUST=4
 
 # Copy web source (excluding .nuxt and .output via .dockerignore)
 COPY web/ ./
