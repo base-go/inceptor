@@ -51,14 +51,21 @@ func ServeStatic(router *gin.Engine) {
 		})
 	}
 
-	// Serve payload.json for each route (strip query params)
-	payloadRoutes := []string{"/apps/_payload.json", "/crashes/_payload.json", "/groups/_payload.json", "/settings/_payload.json"}
-	for _, route := range payloadRoutes {
-		route := route
+	// Serve payload.json for each route
+	payloadRoutes := map[string]string{
+		"/apps/_payload.json":     "static/apps/_payload.json",
+		"/crashes/_payload.json":  "static/crashes/_payload.json",
+		"/groups/_payload.json":   "static/groups/_payload.json",
+		"/settings/_payload.json": "static/settings/_payload.json",
+	}
+	for route, filePath := range payloadRoutes {
+		filePath := filePath // capture
 		router.GET(route, func(c *gin.Context) {
-			// Strip query string and serve the file
-			c.Request.URL.RawQuery = ""
-			fileServer.ServeHTTP(c.Writer, c.Request)
+			if data, err := staticFiles.ReadFile(filePath); err == nil {
+				c.Data(http.StatusOK, "application/json", data)
+			} else {
+				c.String(http.StatusNotFound, "Not found")
+			}
 		})
 	}
 }
