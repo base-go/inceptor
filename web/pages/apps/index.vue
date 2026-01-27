@@ -60,6 +60,21 @@ const copyApiKey = () => {
     navigator.clipboard.writeText(createdApp.value.api_key)
   }
 }
+
+const regenerateKey = async (appId: string) => {
+  try {
+    const result = await api.regenerateAppKey(appId)
+    createdApp.value = {
+      id: result.id,
+      name: result.name,
+      api_key: result.api_key,
+      created_at: '',
+      retention_days: 0
+    }
+  } catch (e) {
+    console.error('Failed to regenerate API key:', e)
+  }
+}
 </script>
 
 <template>
@@ -99,7 +114,10 @@ const copyApiKey = () => {
           </div>
         </div>
 
-        <div class="mt-4 pt-4 border-t border-gray-700">
+        <div class="mt-4 pt-4 border-t border-gray-700 space-y-2">
+          <UButton variant="outline" size="sm" class="w-full" icon="i-heroicons-key" @click="regenerateKey(app.id)">
+            Show API Key
+          </UButton>
           <NuxtLink :to="`/?app_id=${app.id}`">
             <UButton variant="ghost" size="sm" class="w-full">
               View Dashboard
@@ -153,15 +171,15 @@ const copyApiKey = () => {
       <UCard>
         <template #header>
           <div class="flex items-center gap-2 text-green-500">
-            <UIcon name="i-heroicons-check-circle" class="w-6 h-6" />
-            <h3 class="text-lg font-semibold">App Created Successfully</h3>
+            <UIcon name="i-heroicons-key" class="w-6 h-6" />
+            <h3 class="text-lg font-semibold">API Key</h3>
           </div>
         </template>
 
-        <UAlert color="yellow" icon="i-heroicons-exclamation-triangle" class="mb-4">
-          <template #title>Save your API key now!</template>
+        <UAlert color="blue" icon="i-heroicons-information-circle" class="mb-4">
+          <template #title>Store this API key securely</template>
           <template #description>
-            This is the only time you'll see this API key. Store it securely.
+            Use this key in your Flutter app to send crash reports. You can regenerate the key anytime from the Apps page.
           </template>
         </UAlert>
 

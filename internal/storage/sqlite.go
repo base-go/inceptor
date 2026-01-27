@@ -172,6 +172,14 @@ func (r *SQLiteRepository) UpdateApp(ctx context.Context, app *core.App) error {
 	return err
 }
 
+func (r *SQLiteRepository) UpdateAppAPIKey(ctx context.Context, id string, newKeyHash string) error {
+	_, err := r.db.ExecContext(ctx,
+		`UPDATE apps SET api_key_hash = ? WHERE id = ?`,
+		newKeyHash, id,
+	)
+	return err
+}
+
 func (r *SQLiteRepository) DeleteApp(ctx context.Context, id string) error {
 	tx, err := r.db.BeginTx(ctx, nil)
 	if err != nil {

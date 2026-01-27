@@ -93,6 +93,7 @@ func (s *Server) setupRoutes(repo storage.Repository, adminKey string) {
 		admin.POST("/apps", s.handler.CreateApp)
 		admin.GET("/apps", s.handler.ListApps)
 		admin.GET("/apps/:id", s.handler.GetApp)
+		admin.POST("/apps/:id/regenerate-key", s.handler.RegenerateAppKey)
 
 		// Alert management
 		admin.POST("/alerts", s.handler.CreateAlert)

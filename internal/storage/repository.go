@@ -30,6 +30,7 @@ type Repository interface {
 	GetAppByAPIKey(ctx context.Context, apiKeyHash string) (*core.App, error)
 	ListApps(ctx context.Context) ([]*core.App, error)
 	UpdateApp(ctx context.Context, app *core.App) error
+	UpdateAppAPIKey(ctx context.Context, id string, newKeyHash string) error
 	DeleteApp(ctx context.Context, id string) error
 	GetAppStats(ctx context.Context, appID string) (*core.CrashStats, error)
 

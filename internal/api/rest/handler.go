@@ -427,6 +427,38 @@ func (h *Handler) GetApp(c *gin.Context) {
 	})
 }
 
+// RegenerateAppKey generates a new API key for an app
+func (h *Handler) RegenerateAppKey(c *gin.Context) {
+	id := c.Param("id")
+
+	app, err := h.repo.GetApp(c.Request.Context(), id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve app"})
+		return
+	}
+
+	if app == nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "App not found"})
+		return
+	}
+
+	// Generate new API key
+	newAPIKey := generateSecureAPIKey()
+	newKeyHash := HashAPIKey(newAPIKey)
+
+	// Update app with new key hash
+	if err := h.repo.UpdateAppAPIKey(c.Request.Context(), id, newKeyHash); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to regenerate API key"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"id":      app.ID,
+		"name":    app.Name,
+		"api_key": newAPIKey, // Return new key to user
+	})
+}
+
 // ListApps lists all apps (admin only)
 func (h *Handler) ListApps(c *gin.Context) {
 	apps, err := h.repo.ListApps(c.Request.Context())

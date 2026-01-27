@@ -177,6 +177,13 @@ export const useApi = () => {
     })
   }
 
+  const regenerateAppKey = async (id: string): Promise<{ id: string; name: string; api_key: string }> => {
+    return await $fetch<{ id: string; name: string; api_key: string }>(`${baseUrl}/apps/${id}/regenerate-key`, {
+      method: 'POST',
+      headers: headers.value,
+    })
+  }
+
   // Alerts
   const getAlerts = async (app_id?: string): Promise<{ data: Alert[] }> => {
     const query = app_id ? `?app_id=${app_id}` : ''
@@ -219,6 +226,7 @@ export const useApi = () => {
     getApp,
     createApp,
     getAppStats,
+    regenerateAppKey,
     getAlerts,
     createAlert,
     deleteAlert,
