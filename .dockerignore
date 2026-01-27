@@ -35,6 +35,9 @@ web/.nuxt/
 web/.output/
 web/dist/
 
+# Embedded static files (will be generated during Docker build)
+internal/api/rest/static/
+
 # Flutter SDK
 sdk/
 

@@ -50,6 +50,10 @@ web/.nuxt/
 web/.output/
 web/dist/
 
+# Embedded static files (generated from web/ during build)
+internal/api/rest/static/*
+!internal/api/rest/static/.gitkeep
+
 # Flutter SDK
 sdk/flutter/.dart_tool/
 sdk/flutter/.packages

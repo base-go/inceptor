@@ -21,7 +21,10 @@ export default defineNuxtConfig({
     },
   },
 
-  // API base is hardcoded in useApi.ts as /api/v1
+  // Explicitly set empty public config to prevent any defaults
+  runtimeConfig: {
+    public: {}
+  },
 
   typescript: {
     strict: true,
