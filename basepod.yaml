@@ -28,8 +28,8 @@ env:
   INCEPTOR_AUTH_ADMIN_KEY: "admin-secret-key-2024"
 
 # Persist data across deployments
-volumes:
-  - inceptor-data:/app/data
+persist:
+  - /app/data
 
 # Health check endpoint
 health:
