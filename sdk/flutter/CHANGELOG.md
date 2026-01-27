@@ -1,11 +1,11 @@
 ## 1.0.1
 
 * Updated dependencies to latest versions
-  - http: ^1.2.0
-  - device_info_plus: ^11.0.0
-  - package_info_plus: ^8.0.0
-  - connectivity_plus: ^6.0.0
-  - shared_preferences: ^2.3.0
+  - device_info_plus: ^12.0.0
+  - package_info_plus: ^9.0.0
+  - connectivity_plus: ^7.0.0
+  - flutter_lints: ^5.0.0
+* Fixed unnecessary import warning
 
 ## 1.0.0
 
