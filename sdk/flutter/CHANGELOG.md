@@ -1,3 +1,8 @@
+## 1.0.3
+
+* Updated dev dependencies (flutter_lints ^6.0.0)
+* Dependencies now support latest stable versions
+
 ## 1.0.2
 
 * Improved README documentation for pub.dev
