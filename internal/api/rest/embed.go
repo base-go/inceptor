@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-//go:embed static/*
+//go:embed all:static
 var staticFiles embed.FS
 
 // ServeStatic serves the embedded dashboard at root
