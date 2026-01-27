@@ -29,6 +29,34 @@ export const useApi = () => {
 
   const isAuthenticated = computed(() => !!token.value)
 
+  // Helper to handle 401 errors - clears token to show login
+  const handleUnauthorized = () => {
+    token.value = ''
+    needsPasswordChange.value = false
+    if (process.client) {
+      localStorage.removeItem('inceptor_token')
+      // Navigate to home which shows login when not authenticated
+      navigateTo('/')
+    }
+  }
+
+  // Wrapper for authenticated API calls that handles 401
+  const authFetch = async <T>(url: string, options: RequestInit = {}): Promise<T> => {
+    try {
+      return await $fetch<T>(url, {
+        ...options,
+        headers: { ...headers.value, ...(options.headers as Record<string, string> || {}) },
+      } as any)
+    } catch (error: any) {
+      // Check for 401 in various error formats
+      const status = error?.response?.status || error?.status || error?.statusCode || error?.data?.statusCode
+      if (status === 401) {
+        handleUnauthorized()
+      }
+      throw error
+    }
+  }
+
   // Auth methods
   const checkAuthStatus = async (): Promise<AuthStatus> => {
     return await $fetch<AuthStatus>(`${baseUrl}/auth/status`)
@@ -95,23 +123,15 @@ export const useApi = () => {
         if (value !== undefined) query.set(key, String(value))
       })
     }
-
-    return await $fetch<PaginatedResponse<Crash>>(`${baseUrl}/crashes?${query}`, {
-      headers: headers.value,
-    })
+    return await authFetch<PaginatedResponse<Crash>>(`${baseUrl}/crashes?${query}`)
   }
 
   const getCrash = async (id: string): Promise<Crash> => {
-    return await $fetch<Crash>(`${baseUrl}/crashes/${id}`, {
-      headers: headers.value,
-    })
+    return await authFetch<Crash>(`${baseUrl}/crashes/${id}`)
   }
 
   const deleteCrash = async (id: string): Promise<void> => {
-    await $fetch(`${baseUrl}/crashes/${id}`, {
-      method: 'DELETE',
-      headers: headers.value,
-    })
+    await authFetch(`${baseUrl}/crashes/${id}`, { method: 'DELETE' })
   }
 
   // Groups
@@ -130,81 +150,61 @@ export const useApi = () => {
         if (value !== undefined) query.set(key, String(value))
       })
     }
-
-    return await $fetch<PaginatedResponse<CrashGroup>>(`${baseUrl}/groups?${query}`, {
-      headers: headers.value,
-    })
+    return await authFetch<PaginatedResponse<CrashGroup>>(`${baseUrl}/groups?${query}`)
   }
 
   const getGroup = async (id: string): Promise<CrashGroup> => {
-    return await $fetch<CrashGroup>(`${baseUrl}/groups/${id}`, {
-      headers: headers.value,
-    })
+    return await authFetch<CrashGroup>(`${baseUrl}/groups/${id}`)
   }
 
   const updateGroup = async (id: string, data: Partial<CrashGroup>): Promise<CrashGroup> => {
-    return await $fetch<CrashGroup>(`${baseUrl}/groups/${id}`, {
+    return await authFetch<CrashGroup>(`${baseUrl}/groups/${id}`, {
       method: 'PATCH',
-      headers: headers.value,
-      body: data,
+      body: JSON.stringify(data),
     })
   }
 
   // Apps
   const getApps = async (): Promise<{ data: App[] }> => {
-    return await $fetch<{ data: App[] }>(`${baseUrl}/apps`, {
-      headers: headers.value,
-    })
+    return await authFetch<{ data: App[] }>(`${baseUrl}/apps`)
   }
 
   const getApp = async (id: string): Promise<App> => {
-    return await $fetch<App>(`${baseUrl}/apps/${id}`, {
-      headers: headers.value,
-    })
+    return await authFetch<App>(`${baseUrl}/apps/${id}`)
   }
 
   const createApp = async (name: string, retention_days?: number): Promise<App> => {
-    return await $fetch<App>(`${baseUrl}/apps`, {
+    return await authFetch<App>(`${baseUrl}/apps`, {
       method: 'POST',
-      headers: headers.value,
-      body: { name, retention_days },
+      body: JSON.stringify({ name, retention_days }),
     })
   }
 
   const getAppStats = async (id: string): Promise<CrashStats> => {
-    return await $fetch<CrashStats>(`${baseUrl}/apps/${id}/stats`, {
-      headers: headers.value,
-    })
+    return await authFetch<CrashStats>(`${baseUrl}/apps/${id}/stats`)
   }
 
   const regenerateAppKey = async (id: string): Promise<{ id: string; name: string; api_key: string }> => {
-    return await $fetch<{ id: string; name: string; api_key: string }>(`${baseUrl}/apps/${id}/regenerate-key`, {
+    return await authFetch<{ id: string; name: string; api_key: string }>(`${baseUrl}/apps/${id}/regenerate-key`, {
       method: 'POST',
-      headers: headers.value,
     })
   }
 
   // Alerts
   const getAlerts = async (app_id?: string): Promise<{ data: Alert[] }> => {
     const query = app_id ? `?app_id=${app_id}` : ''
-    return await $fetch<{ data: Alert[] }>(`${baseUrl}/alerts${query}`, {
-      headers: headers.value,
-    })
+    return await authFetch<{ data: Alert[] }>(`${baseUrl}/alerts${query}`)
   }
 
   const createAlert = async (data: Omit<Alert, 'id' | 'created_at'>): Promise<Alert> => {
-    return await $fetch<Alert>(`${baseUrl}/alerts`, {
+    return await authFetch<Alert>(`${baseUrl}/alerts`, {
       method: 'POST',
-      headers: headers.value,
-      body: data,
+      body: JSON.stringify(data),
     })
   }
 
   const deleteAlert = async (id: string): Promise<void> => {
-    await $fetch(`${baseUrl}/alerts/${id}`, {
-      method: 'DELETE',
-      headers: headers.value,
-    })
+    await authFetch(`${baseUrl}/alerts/${id}`, { method: 'DELETE' })
   }
 
   return {
