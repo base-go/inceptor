@@ -5,7 +5,6 @@ homepage: https://github.com/base-go/inceptor
 repository: https://github.com/base-go/inceptor
 issue_tracker: https://github.com/base-go/inceptor/issues
 documentation: https://github.com/base-go/inceptor#flutter-sdk
-publisher: base.al
 
 topics:
   - crash-reporting
