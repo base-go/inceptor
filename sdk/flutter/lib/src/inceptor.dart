@@ -430,13 +430,9 @@ class Inceptor {
 
   Future<bool> _hasConnectivity() async {
     try {
-      final result = await Connectivity().checkConnectivity();
-      // connectivity_plus 5.x returns ConnectivityResult, 6.x+ returns List
-      if (result is List) {
-        return (result as List).isNotEmpty &&
-            !(result as List).contains(ConnectivityResult.none);
-      }
-      return result != ConnectivityResult.none;
+      final results = await Connectivity().checkConnectivity();
+      // connectivity_plus 6.x+ returns List<ConnectivityResult>
+      return results.isNotEmpty && !results.contains(ConnectivityResult.none);
     } catch (e) {
       _log('Failed to check connectivity: $e');
       return true; // Assume connected if check fails
