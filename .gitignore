@@ -64,3 +64,5 @@ sdk/flutter/build/
 .env
 .env.*
 !.env.example
+inceptor
+web/dist
