@@ -29,7 +29,7 @@ env:
 
 # Persist data across deployments
 volumes:
-  - /app/data
+  - inceptor-data:/app/data
 
 # Health check endpoint
 health:
