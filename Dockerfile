@@ -12,11 +12,8 @@ RUN npm ci
 # Copy web source
 COPY web/ ./
 
-# Set API base URL for production build
-ENV NUXT_PUBLIC_API_BASE=/api/v1
-
-# Build static files
-RUN npm run generate
+# Clear any cached Nuxt build and rebuild
+RUN rm -rf .nuxt .output node_modules/.cache && npm run generate
 
 # Stage 2: Build Go binary
 FROM golang:1.22-alpine AS builder
