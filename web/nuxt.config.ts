@@ -21,11 +21,7 @@ export default defineNuxtConfig({
     },
   },
 
-  runtimeConfig: {
-    public: {
-      apiBase: process.env.NUXT_PUBLIC_API_BASE || '/api/v1',
-    },
-  },
+  // API base is hardcoded in useApi.ts as /api/v1
 
   typescript: {
     strict: true,
