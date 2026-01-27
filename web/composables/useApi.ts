@@ -11,11 +11,16 @@ interface LoginResponse {
 }
 
 export const useApi = () => {
-  const config = useRuntimeConfig()
   const token = useState<string>('authToken', () => '')
   const needsPasswordChange = useState<boolean>('needsPasswordChange', () => false)
 
-  const baseUrl = config.public.apiBase
+  // Use relative URL in browser, fallback to config for SSR
+  const baseUrl = computed(() => {
+    if (process.client) {
+      return '/api/v1'
+    }
+    return useRuntimeConfig().public.apiBase
+  })
 
   const headers = computed(() => {
     const h: Record<string, string> = {
@@ -31,11 +36,11 @@ export const useApi = () => {
 
   // Auth methods
   const checkAuthStatus = async (): Promise<AuthStatus> => {
-    return await $fetch<AuthStatus>(`${baseUrl}/auth/status`)
+    return await $fetch<AuthStatus>(`${baseUrl.value}/auth/status`)
   }
 
   const login = async (password: string): Promise<LoginResponse> => {
-    const response = await $fetch<LoginResponse>(`${baseUrl}/auth/login`, {
+    const response = await $fetch<LoginResponse>(`${baseUrl.value}/auth/login`, {
       method: 'POST',
       body: { password },
     })
@@ -49,7 +54,7 @@ export const useApi = () => {
 
   const logout = async (): Promise<void> => {
     try {
-      await $fetch(`${baseUrl}/auth/logout`, {
+      await $fetch(`${baseUrl.value}/auth/logout`, {
         method: 'POST',
         headers: headers.value,
       })
@@ -62,7 +67,7 @@ export const useApi = () => {
   }
 
   const changePassword = async (oldPassword: string, newPassword: string): Promise<void> => {
-    await $fetch(`${baseUrl}/auth/change-password`, {
+    await $fetch(`${baseUrl.value}/auth/change-password`, {
       method: 'POST',
       headers: headers.value,
       body: { old_password: oldPassword, new_password: newPassword },
@@ -96,19 +101,19 @@ export const useApi = () => {
       })
     }
 
-    return await $fetch<PaginatedResponse<Crash>>(`${baseUrl}/crashes?${query}`, {
+    return await $fetch<PaginatedResponse<Crash>>(`${baseUrl.value}/crashes?${query}`, {
       headers: headers.value,
     })
   }
 
   const getCrash = async (id: string): Promise<Crash> => {
-    return await $fetch<Crash>(`${baseUrl}/crashes/${id}`, {
+    return await $fetch<Crash>(`${baseUrl.value}/crashes/${id}`, {
       headers: headers.value,
     })
   }
 
   const deleteCrash = async (id: string): Promise<void> => {
-    await $fetch(`${baseUrl}/crashes/${id}`, {
+    await $fetch(`${baseUrl.value}/crashes/${id}`, {
       method: 'DELETE',
       headers: headers.value,
     })
@@ -131,19 +136,19 @@ export const useApi = () => {
       })
     }
 
-    return await $fetch<PaginatedResponse<CrashGroup>>(`${baseUrl}/groups?${query}`, {
+    return await $fetch<PaginatedResponse<CrashGroup>>(`${baseUrl.value}/groups?${query}`, {
       headers: headers.value,
     })
   }
 
   const getGroup = async (id: string): Promise<CrashGroup> => {
-    return await $fetch<CrashGroup>(`${baseUrl}/groups/${id}`, {
+    return await $fetch<CrashGroup>(`${baseUrl.value}/groups/${id}`, {
       headers: headers.value,
     })
   }
 
   const updateGroup = async (id: string, data: Partial<CrashGroup>): Promise<CrashGroup> => {
-    return await $fetch<CrashGroup>(`${baseUrl}/groups/${id}`, {
+    return await $fetch<CrashGroup>(`${baseUrl.value}/groups/${id}`, {
       method: 'PATCH',
       headers: headers.value,
       body: data,
@@ -152,19 +157,19 @@ export const useApi = () => {
 
   // Apps
   const getApps = async (): Promise<{ data: App[] }> => {
-    return await $fetch<{ data: App[] }>(`${baseUrl}/apps`, {
+    return await $fetch<{ data: App[] }>(`${baseUrl.value}/apps`, {
       headers: headers.value,
     })
   }
 
   const getApp = async (id: string): Promise<App> => {
-    return await $fetch<App>(`${baseUrl}/apps/${id}`, {
+    return await $fetch<App>(`${baseUrl.value}/apps/${id}`, {
       headers: headers.value,
     })
   }
 
   const createApp = async (name: string, retention_days?: number): Promise<App> => {
-    return await $fetch<App>(`${baseUrl}/apps`, {
+    return await $fetch<App>(`${baseUrl.value}/apps`, {
       method: 'POST',
       headers: headers.value,
       body: { name, retention_days },
@@ -172,7 +177,7 @@ export const useApi = () => {
   }
 
   const getAppStats = async (id: string): Promise<CrashStats> => {
-    return await $fetch<CrashStats>(`${baseUrl}/apps/${id}/stats`, {
+    return await $fetch<CrashStats>(`${baseUrl.value}/apps/${id}/stats`, {
       headers: headers.value,
     })
   }
@@ -180,13 +185,13 @@ export const useApi = () => {
   // Alerts
   const getAlerts = async (app_id?: string): Promise<{ data: Alert[] }> => {
     const query = app_id ? `?app_id=${app_id}` : ''
-    return await $fetch<{ data: Alert[] }>(`${baseUrl}/alerts${query}`, {
+    return await $fetch<{ data: Alert[] }>(`${baseUrl.value}/alerts${query}`, {
       headers: headers.value,
     })
   }
 
   const createAlert = async (data: Omit<Alert, 'id' | 'created_at'>): Promise<Alert> => {
-    return await $fetch<Alert>(`${baseUrl}/alerts`, {
+    return await $fetch<Alert>(`${baseUrl.value}/alerts`, {
       method: 'POST',
       headers: headers.value,
       body: data,
@@ -194,7 +199,7 @@ export const useApi = () => {
   }
 
   const deleteAlert = async (id: string): Promise<void> => {
-    await $fetch(`${baseUrl}/alerts/${id}`, {
+    await $fetch(`${baseUrl.value}/alerts/${id}`, {
       method: 'DELETE',
       headers: headers.value,
     })
