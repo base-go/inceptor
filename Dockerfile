@@ -9,11 +9,14 @@ COPY web/package*.json ./
 # Install dependencies
 RUN npm ci
 
-# Copy web source
+# Cache bust - change this value to force rebuild
+ARG CACHE_BUST=2
+
+# Copy web source (excluding .nuxt and .output via .dockerignore)
 COPY web/ ./
 
-# Clear any cached Nuxt build and rebuild
-RUN rm -rf .nuxt .output node_modules/.cache && npm run generate
+# Build static files
+RUN npm run generate
 
 # Stage 2: Build Go binary
 FROM golang:1.22-alpine AS builder
