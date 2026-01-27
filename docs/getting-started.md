@@ -15,7 +15,7 @@ BasePod provides the simplest deployment experience:
 
 ```bash
 # Clone the repository
-git clone https://github.com/flakerimi/inceptor.git
+git clone https://github.com/base-go/inceptor.git
 cd inceptor
 
 # Deploy to BasePod
@@ -42,7 +42,7 @@ docker run -d \
 
 ```bash
 # Clone and build
-git clone https://github.com/flakerimi/inceptor.git
+git clone https://github.com/base-go/inceptor.git
 cd inceptor
 
 # Build the web dashboard

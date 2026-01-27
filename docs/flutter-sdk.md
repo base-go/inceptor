@@ -10,7 +10,7 @@ Add the SDK to your `pubspec.yaml`:
 dependencies:
   inceptor_flutter:
     git:
-      url: https://github.com/flakerimi/inceptor.git
+      url: https://github.com/base-go/inceptor.git
       path: sdk/flutter
 ```
 

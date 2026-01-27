@@ -43,7 +43,7 @@ Inceptor is a lightweight, self-hosted crash logging and error tracking service 
 
 ```bash
 # Clone the repository
-git clone https://github.com/flakerimi/inceptor.git
+git clone https://github.com/base-go/inceptor.git
 cd inceptor
 
 # Login to your BasePod server
@@ -57,7 +57,7 @@ bp push
 
 ```bash
 # Clone and build
-git clone https://github.com/flakerimi/inceptor.git
+git clone https://github.com/base-go/inceptor.git
 cd inceptor
 
 # Install dependencies
@@ -392,7 +392,7 @@ Add to your `pubspec.yaml`:
 dependencies:
   inceptor_flutter:
     git:
-      url: https://github.com/flakerimi/inceptor.git
+      url: https://github.com/base-go/inceptor.git
       path: sdk/flutter
 ```
 

@@ -36,7 +36,7 @@ Inceptor provides a complete crash reporting solution with intelligent crash gro
 
 ```bash
 # Clone the repository
-git clone https://github.com/flakerimi/inceptor.git
+git clone https://github.com/base-go/inceptor.git
 cd inceptor
 
 # Deploy with BasePod

@@ -26,7 +26,7 @@ BasePod provides the simplest deployment experience with automatic TLS, health c
 
 ```bash
 # Clone the repository
-git clone https://github.com/flakerimi/inceptor.git
+git clone https://github.com/base-go/inceptor.git
 cd inceptor
 
 # Deploy to BasePod
@@ -275,7 +275,7 @@ spec:
 
 ```bash
 # Clone repository
-git clone https://github.com/flakerimi/inceptor.git
+git clone https://github.com/base-go/inceptor.git
 cd inceptor
 
 # Build dashboard
