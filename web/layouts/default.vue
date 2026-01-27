@@ -19,16 +19,22 @@ const handleLogout = async () => {
   await api.logout()
 }
 
-// Load saved token on mount
+// Track if mounted (client-side)
+const mounted = ref(false)
+
 onMounted(() => {
   api.loadToken()
+  mounted.value = true
 })
+
+// Only show authenticated UI after mount and when actually authenticated
+const showAuthenticatedUI = computed(() => mounted.value && api.isAuthenticated.value)
 </script>
 
 <template>
   <div class="min-h-screen bg-gray-900">
-    <!-- Show sidebar only when authenticated -->
-    <template v-if="api.isAuthenticated.value">
+    <!-- Show sidebar only when authenticated (client-side only) -->
+    <template v-if="showAuthenticatedUI">
       <!-- Sidebar -->
       <div class="fixed inset-y-0 left-0 z-50 w-64 bg-gray-800 border-r border-gray-700">
         <!-- Logo -->
@@ -91,7 +97,7 @@ onMounted(() => {
       </div>
     </template>
 
-    <!-- Login layout (no sidebar) -->
+    <!-- Login layout (no sidebar) - shown when not authenticated or not yet mounted -->
     <template v-else>
       <div class="flex items-center justify-center min-h-screen">
         <div class="w-full max-w-md px-4">
