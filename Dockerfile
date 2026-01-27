@@ -12,6 +12,9 @@ RUN npm ci
 # Copy web source
 COPY web/ ./
 
+# Set API base URL for production build
+ENV NUXT_PUBLIC_API_BASE=/api/v1
+
 # Build static files
 RUN npm run generate
 

@@ -216,10 +216,7 @@ const statusColor = (status: string) => {
     </UModal>
 
     <!-- Login Form if not authenticated -->
-    <UCard v-if="!api.isAuthenticated.value" class="max-w-md">
-      <template #header>
-        <h3 class="text-lg font-semibold">Login</h3>
-      </template>
+    <UCard v-if="!api.isAuthenticated.value">
       <div class="space-y-4">
         <div>
           <label class="block text-sm font-medium text-gray-300 mb-1">Password</label>
@@ -240,7 +237,7 @@ const statusColor = (status: string) => {
         </UButton>
       </div>
       <template #footer>
-        <p class="text-sm text-gray-500">
+        <p class="text-sm text-gray-500 text-center">
           Default password: inceptor
         </p>
       </template>
