@@ -1,6 +1,6 @@
 name: inceptor_flutter
 description: Flutter SDK for Inceptor crash logging service. Automatically captures and reports crashes and errors from your Flutter application.
-version: 1.0.1
+version: 1.0.2
 homepage: https://github.com/base-go/inceptor
 repository: https://github.com/base-go/inceptor
 issue_tracker: https://github.com/base-go/inceptor/issues

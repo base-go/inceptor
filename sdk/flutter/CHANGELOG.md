@@ -1,3 +1,11 @@
+## 1.0.2
+
+* Improved README documentation for pub.dev
+  - Added badges and better formatting
+  - Comprehensive API reference table
+  - Troubleshooting section
+  - HTTP client integration example
+
 ## 1.0.1
 
 * Updated dependencies to latest versions
