@@ -28,7 +28,7 @@ func ServeStatic(router *gin.Engine) {
 	})
 
 	// SPA routes - serve index.html for these paths
-	spaRoutes := []string{"/", "/apps", "/crashes", "/crashes/:id", "/groups", "/settings"}
+	spaRoutes := []string{"/", "/apps", "/crashes", "/crashes/:id", "/groups", "/groups/:id", "/settings"}
 	for _, route := range spaRoutes {
 		route := route // capture
 		router.GET(route, func(c *gin.Context) {

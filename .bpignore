@@ -1,0 +1,34 @@
+# BasePod ignore file
+# Exclude files from deployment tarball
+
+# Dependencies (will be installed during build)
+web/node_modules/
+sdk/flutter/.dart_tool/
+sdk/flutter/build/
+
+# Build outputs (rebuilt on server)
+web/.nuxt/
+web/.output/
+web/dist/
+bin/
+
+# IDE and OS files
+.idea/
+.vscode/
+.DS_Store
+*.swp
+*.swo
+
+# Test and coverage
+coverage/
+*.out
+coverage.html
+
+# Local data
+data/
+*.db
+*.sqlite
+*.log
+
+# Git
+.git/
