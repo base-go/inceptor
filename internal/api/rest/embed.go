@@ -28,11 +28,11 @@ func ServeStatic(router *gin.Engine) {
 	})
 
 	// SPA routes - serve index.html for these paths
-	spaRoutes := []string{"/", "/apps", "/crashes", "/crashes/:id", "/groups", "/groups/:id", "/settings"}
-	for _, route := range spaRoutes {
+	// Static routes have their own index.html, dynamic routes fall back to 200.html (SPA fallback)
+	staticRoutes := []string{"/", "/apps", "/crashes", "/groups", "/settings"}
+	for _, route := range staticRoutes {
 		route := route // capture
 		router.GET(route, func(c *gin.Context) {
-			// Check if there's a specific HTML file for this route
 			path := strings.TrimPrefix(c.Request.URL.Path, "/")
 			if path == "" {
 				path = "index.html"
@@ -40,8 +40,22 @@ func ServeStatic(router *gin.Engine) {
 				path = path + "/index.html"
 			}
 
-			// Try to serve the specific page, fallback to index.html
 			if data, err := staticFiles.ReadFile("static/" + path); err == nil {
+				c.Data(http.StatusOK, "text/html; charset=utf-8", data)
+			} else if data, err := staticFiles.ReadFile("static/200.html"); err == nil {
+				c.Data(http.StatusOK, "text/html; charset=utf-8", data)
+			} else {
+				c.String(http.StatusNotFound, "Not found")
+			}
+		})
+	}
+
+	// Dynamic routes - always serve 200.html (SPA fallback) for client-side routing
+	dynamicRoutes := []string{"/crashes/:id", "/groups/:id", "/apps/:id"}
+	for _, route := range dynamicRoutes {
+		router.GET(route, func(c *gin.Context) {
+			// Serve 200.html which is Nuxt's SPA fallback page
+			if data, err := staticFiles.ReadFile("static/200.html"); err == nil {
 				c.Data(http.StatusOK, "text/html; charset=utf-8", data)
 			} else if data, err := staticFiles.ReadFile("static/index.html"); err == nil {
 				c.Data(http.StatusOK, "text/html; charset=utf-8", data)
