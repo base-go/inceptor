@@ -22,9 +22,21 @@ const handleLogout = async () => {
 // Track if mounted (client-side)
 const mounted = ref(false)
 
+// Version info
+const versionInfo = ref<{ current: string; latest: string; updateAvailable: boolean } | null>(null)
+
+const loadVersion = async () => {
+  try {
+    versionInfo.value = await api.getVersion()
+  } catch (e) {
+    // Silently fail
+  }
+}
+
 onMounted(() => {
   api.loadToken()
   mounted.value = true
+  loadVersion()
 })
 
 // Only show authenticated UI after mount and when actually authenticated
@@ -62,12 +74,31 @@ const showAuthenticatedUI = computed(() => mounted.value && api.isAuthenticated.
           </NuxtLink>
         </nav>
 
-        <!-- Auth Status -->
-        <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-700">
-          <div class="flex items-center justify-between">
+        <!-- Footer -->
+        <div class="absolute bottom-0 left-0 right-0 border-t border-gray-700">
+          <!-- Version -->
+          <NuxtLink
+            to="/settings"
+            class="flex items-center justify-between px-4 py-3 hover:bg-gray-700/50 transition-colors"
+          >
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-gray-500">v{{ versionInfo?.current || '...' }}</span>
+              <span
+                v-if="versionInfo?.updateAvailable"
+                class="flex items-center gap-1 text-xs text-yellow-500"
+              >
+                <span class="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse"></span>
+                Update
+              </span>
+            </div>
+            <UIcon name="i-heroicons-chevron-right" class="w-4 h-4 text-gray-600" />
+          </NuxtLink>
+
+          <!-- Logout -->
+          <div class="flex items-center justify-between px-4 py-3 border-t border-gray-700/50">
             <div class="flex items-center text-sm">
-              <UIcon name="i-heroicons-check-circle" class="w-5 h-5 mr-2 text-green-500" />
-              <span class="text-gray-400">Connected</span>
+              <UIcon name="i-heroicons-check-circle" class="w-4 h-4 mr-2 text-green-500" />
+              <span class="text-gray-500 text-xs">Connected</span>
             </div>
             <UButton
               size="xs"

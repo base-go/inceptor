@@ -207,6 +207,16 @@ export const useApi = () => {
     await authFetch(`${baseUrl}/alerts/${id}`, { method: 'DELETE' })
   }
 
+  // System
+  const getVersion = async (): Promise<{ current: string; latest: string; updateAvailable: boolean }> => {
+    const response = await fetch(`${baseUrl}/system/version`)
+    return response.json()
+  }
+
+  const triggerUpdate = async (): Promise<{ status: string; message: string }> => {
+    return await authFetch(`${baseUrl}/system/update`, { method: 'POST' })
+  }
+
   return {
     token,
     isAuthenticated,
@@ -230,5 +240,7 @@ export const useApi = () => {
     getAlerts,
     createAlert,
     deleteAlert,
+    getVersion,
+    triggerUpdate,
   }
 }
