@@ -18,8 +18,8 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// Version is set via ldflags during build
-var Version = "dev"
+// Version is updated by scripts/release.sh
+var version = "1.0.0"
 
 func main() {
 	// Parse flags
@@ -88,7 +88,7 @@ func main() {
 	})
 
 	// Initialize REST server
-	restServer := rest.NewServer(repo, fileStore, alerter, authManager, cfg.Auth.AdminKey, Version)
+	restServer := rest.NewServer(repo, fileStore, alerter, authManager, cfg.Auth.AdminKey, version)
 
 	// Start servers
 	errChan := make(chan error, 2)

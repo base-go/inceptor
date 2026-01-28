@@ -4,10 +4,6 @@
 BINARY=inceptor
 # Build directory
 BUILD_DIR=bin
-# Version (override with VERSION=x.y.z)
-VERSION ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo "dev")
-# LDFLAGS
-LDFLAGS=-ldflags "-X main.Version=$(VERSION)"
 
 # Go parameters
 GOCMD=go
@@ -34,21 +30,20 @@ web:
 # Build the binary
 build:
 	mkdir -p $(BUILD_DIR)
-	$(GOBUILD) $(LDFLAGS) -o $(BUILD_DIR)/$(BINARY) ./cmd/inceptor
+	$(GOBUILD) -o $(BUILD_DIR)/$(BINARY) ./cmd/inceptor
 
 # Build for multiple platforms
 build-all: web
 	mkdir -p $(BUILD_DIR)
-	GOOS=linux GOARCH=amd64 $(GOBUILD) $(LDFLAGS) -o $(BUILD_DIR)/$(BINARY)-linux-amd64 ./cmd/inceptor
-	GOOS=linux GOARCH=arm64 $(GOBUILD) $(LDFLAGS) -o $(BUILD_DIR)/$(BINARY)-linux-arm64 ./cmd/inceptor
-	GOOS=darwin GOARCH=amd64 $(GOBUILD) $(LDFLAGS) -o $(BUILD_DIR)/$(BINARY)-darwin-amd64 ./cmd/inceptor
-	GOOS=darwin GOARCH=arm64 $(GOBUILD) $(LDFLAGS) -o $(BUILD_DIR)/$(BINARY)-darwin-arm64 ./cmd/inceptor
-	GOOS=windows GOARCH=amd64 $(GOBUILD) $(LDFLAGS) -o $(BUILD_DIR)/$(BINARY)-windows-amd64.exe ./cmd/inceptor
+	GOOS=linux GOARCH=amd64 $(GOBUILD) -o $(BUILD_DIR)/$(BINARY)-linux-amd64 ./cmd/inceptor
+	GOOS=linux GOARCH=arm64 $(GOBUILD) -o $(BUILD_DIR)/$(BINARY)-linux-arm64 ./cmd/inceptor
+	GOOS=darwin GOARCH=amd64 $(GOBUILD) -o $(BUILD_DIR)/$(BINARY)-darwin-amd64 ./cmd/inceptor
+	GOOS=darwin GOARCH=arm64 $(GOBUILD) -o $(BUILD_DIR)/$(BINARY)-darwin-arm64 ./cmd/inceptor
+	GOOS=windows GOARCH=amd64 $(GOBUILD) -o $(BUILD_DIR)/$(BINARY)-windows-amd64.exe ./cmd/inceptor
 
-# Release (requires VERSION to be set)
-release: build-all
-	@echo "Built release $(VERSION)"
-	@ls -la $(BUILD_DIR)/
+# Release - use scripts/release.sh instead
+release:
+	./scripts/release.sh
 
 # Run the application
 run:
