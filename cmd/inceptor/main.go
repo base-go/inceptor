@@ -19,7 +19,7 @@ import (
 )
 
 // Version is updated by scripts/release.sh
-var version = "1.0.1"
+var version = "1.0.2"
 
 func main() {
 	// Parse flags
