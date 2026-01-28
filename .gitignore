@@ -1,5 +1,6 @@
 # Binaries
 bin/
+inceptor-*
 *.exe
 *.exe~
 *.dll
@@ -57,8 +58,12 @@ internal/api/rest/static/*
 # Flutter SDK
 sdk/flutter/.dart_tool/
 sdk/flutter/.packages
+sdk/flutter/.flutter-plugins-dependencies
 sdk/flutter/pubspec.lock
 sdk/flutter/build/
+sdk/flutter/example/.dart_tool/
+sdk/flutter/example/.flutter-plugins-dependencies
+sdk/flutter/example/pubspec.lock
 
 # Environment files
 .env

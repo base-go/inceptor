@@ -112,7 +112,7 @@ gh release create "v$NEW_VERSION" \
     inceptor-darwin-arm64 \
     inceptor-darwin-amd64 \
     --title "v$NEW_VERSION" \
-    --generate-release-notes
+    --generate-notes
 
 # Cleanup binaries
 rm -f inceptor-linux-* inceptor-darwin-*
