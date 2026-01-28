@@ -3,14 +3,17 @@
 
 # Dependencies (will be installed during build)
 web/node_modules/
-sdk/flutter/.dart_tool/
-sdk/flutter/build/
+
+# SDK not needed for server build
+sdk/
 
 # Build outputs (rebuilt on server)
 web/.nuxt/
 web/.output/
 web/dist/
 bin/
+inceptor
+inceptor-*
 
 # IDE and OS files
 .idea/
