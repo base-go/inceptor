@@ -13,10 +13,11 @@ type Server struct {
 	handler     *Handler
 	authHandler *AuthHandler
 	authManager *auth.Manager
+	version     string
 }
 
 // NewServer creates a new REST API server
-func NewServer(repo storage.Repository, fileStore storage.FileStore, alerter *core.AlertManager, authManager *auth.Manager, adminKey string) *Server {
+func NewServer(repo storage.Repository, fileStore storage.FileStore, alerter *core.AlertManager, authManager *auth.Manager, adminKey string, version string) *Server {
 	gin.SetMode(gin.ReleaseMode)
 
 	router := gin.New()
@@ -28,6 +29,7 @@ func NewServer(repo storage.Repository, fileStore storage.FileStore, alerter *co
 		handler:     handler,
 		authHandler: authHandler,
 		authManager: authManager,
+		version:     version,
 	}
 
 	s.setupRoutes(repo, adminKey)
@@ -47,6 +49,10 @@ func (s *Server) setupRoutes(repo storage.Repository, adminKey string) {
 	// Health check (no auth)
 	s.router.GET("/health", s.handler.Health)
 	s.router.GET("/ready", s.handler.Health)
+
+	// System endpoints
+	s.router.GET("/api/v1/system/version", s.handleGetVersion)
+	s.router.POST("/api/v1/system/update", APIKeyOrSessionAuth(repo, adminKey, s.authManager), AdminOnly(), s.handleSystemUpdate)
 
 	// API v1
 	v1 := s.router.Group("/api/v1")

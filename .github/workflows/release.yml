@@ -1,0 +1,77 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Get version
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Install web dependencies
+        run: cd web && npm ci
+
+      - name: Build web dashboard
+        run: cd web && npm run generate
+
+      - name: Copy web assets
+        run: |
+          rm -rf internal/api/rest/static/* 2>/dev/null || true
+          mkdir -p internal/api/rest/static
+          cp -r web/.output/public/* internal/api/rest/static/
+
+      - name: Build binaries
+        run: |
+          VERSION=${{ steps.version.outputs.VERSION }}
+          LDFLAGS="-X main.Version=${VERSION}"
+
+          mkdir -p bin
+
+          # Linux amd64
+          GOOS=linux GOARCH=amd64 go build -ldflags "$LDFLAGS" -o bin/inceptor-linux-amd64 ./cmd/inceptor
+
+          # Linux arm64
+          GOOS=linux GOARCH=arm64 go build -ldflags "$LDFLAGS" -o bin/inceptor-linux-arm64 ./cmd/inceptor
+
+          # macOS amd64
+          GOOS=darwin GOARCH=amd64 go build -ldflags "$LDFLAGS" -o bin/inceptor-darwin-amd64 ./cmd/inceptor
+
+          # macOS arm64
+          GOOS=darwin GOARCH=arm64 go build -ldflags "$LDFLAGS" -o bin/inceptor-darwin-arm64 ./cmd/inceptor
+
+          # Windows amd64
+          GOOS=windows GOARCH=amd64 go build -ldflags "$LDFLAGS" -o bin/inceptor-windows-amd64.exe ./cmd/inceptor
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            bin/inceptor-linux-amd64
+            bin/inceptor-linux-arm64
+            bin/inceptor-darwin-amd64
+            bin/inceptor-darwin-arm64
+            bin/inceptor-windows-amd64.exe
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

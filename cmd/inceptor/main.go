@@ -18,6 +18,9 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// Version is set via ldflags during build
+var Version = "dev"
+
 func main() {
 	// Parse flags
 	configPath := flag.String("config", "", "Path to configuration file")
@@ -85,7 +88,7 @@ func main() {
 	})
 
 	// Initialize REST server
-	restServer := rest.NewServer(repo, fileStore, alerter, authManager, cfg.Auth.AdminKey)
+	restServer := rest.NewServer(repo, fileStore, alerter, authManager, cfg.Auth.AdminKey, Version)
 
 	// Start servers
 	errChan := make(chan error, 2)
